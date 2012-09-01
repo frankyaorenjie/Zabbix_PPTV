@@ -270,7 +270,8 @@ void	DCflush_nextchecks()
 		/* dealing with events */
 		for (i = 0; i < events_num; i++)
 		{
-			events_maxid = DBget_maxid("events");
+			events_maxid = DBget_seq_maxid("events");
+			//zabbix_log(LOG_LEVEL_INFORMATION,"******** FROM NEXTCHECKS.C *********");
 			zbx_snprintf_alloc(&sql, &sql_alloc, &sql_offset, 256,
 					"insert into events (eventid,source,object,objectid,clock,value) "
 					"values (" ZBX_FS_UI64 ",%d,%d," ZBX_FS_UI64 ",%d,%d);\n",
