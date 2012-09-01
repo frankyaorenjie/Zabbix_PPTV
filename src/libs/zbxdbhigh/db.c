@@ -1447,6 +1447,20 @@ const ZBX_FIELD *DBget_field(const ZBX_TABLE *table, const char *fieldname)
 	return NULL;
 }
 
+zbx_uint64_t    DBget_seq_maxid(const char *tablename)
+{
+    zbx_uint64_t    ret;
+	DB_RESULT   result;
+	DB_ROW  row;
+	result = DBselect("select eventid_sequence.nextval from dual");
+	row = DBfetch(result);
+	ZBX_STR2UINT64(ret,row[0]);
+	//zabbix_log(LOG_LEVEL_INFORMATION,"********  GETTING SEQ MAX ID:%d ************",ret);
+	DBfree_result(result);
+	return  ret;
+}
+
+
 zbx_uint64_t	DBget_maxid_num(const char *tablename, int num)
 {
 	if (0 == strcmp(tablename, "events"))
