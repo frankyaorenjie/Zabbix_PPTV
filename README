@@ -1,0 +1,20 @@
+PPTV began to use Zabbix-1.8.8 in large scalability last years. Some issues occurred to us while deploying it. Most of them are about performance and little is about frontend. So we made some patch on it. But, very unfortunately, Zabbix Team rejected our request of merging our patch in new-release zabbix.
+
+Last week, I found Zabbix-2.0.2 released and some useful improvement has come. I'd like to merge those improvement into our Zabbix. For the sake of tracing code, I now put the codes on Github.
+
+What we have done:
+
+1. Close some opened db cursor which are open before but not closed properly. It will occur 'max cursor' issue.
+2. Split massive db sentences with ';'. Origin zabbix will connect serveral pieces of sql, add 'Begin' and 'End' to the whole sql. It cause Oracle(we use oracle as our backend database) cannot share cursors.
+3. Replace get-id-method(e.g eventid, itemid and so on) with Sequence in Oracle. The mechanism of create id in origin zabbix is very low efficience and it will raise a lot TX lock in Oracle.
+
+Thanks Kenny Wu has helped me so much.
+
+Frank Yao
+2012.9.1 
+
+
+Below is origin content of README:
+
+Please see http://www.zabbix.com/ for detailed information about Zabbix.
+On-line Zabbix documentation is available at http://www.zabbix.com/documentation/1.8/.

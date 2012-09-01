@@ -1,0 +1,1 @@
+zabbix_agentd-eventlog.o zabbix_agentd-eventlog.o: eventlog.c
