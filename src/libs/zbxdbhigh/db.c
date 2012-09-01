@@ -196,7 +196,64 @@ int	__zbx_DBexecute(const char *fmt, ...)
 
 	va_start(args, fmt);
 
-	rc = zbx_db_vexecute(fmt, args);
+    /*  
+      Cursor sharing does not function when sql to execute is a PL/SQL statement. Thus We have to hack here to manulate any PL/SQL a bit to remove "begin" & "end" keywords 
+      and split the statment and run the result sqls one by one.
+          
+          Initial modification by: Kenny Wu & Frank Yao @ PPTV  Mar/20/2012
+    */
+    char *sql=NULL;
+    char *ptr=NULL;
+
+    sql = zbx_dvsprintf(sql, fmt, args);
+    if (!strstr(sql,";")) {
+        rc = zbx_db_vexecute(sql, args);    
+        zbx_free(sql);
+    }   
+    else{
+        //zabbix_log(LOG_LEVEL_WARNING,"TO_EXECUTE:SQL Lenth: %d --> Executing: %s",strlen(sql),sql);
+        int length = strlen(sql);
+        char buff[length];
+        zbx_snprintf(buff, sizeof(buff), "%s", sql);
+        zbx_free(sql);
+        char* token = strtok_r(buff, ";",&ptr);
+        if (strstr(token,"begin") == token) {
+            int len = strlen(token);
+            char *token_no_begin=NULL, *token_clean=NULL;
+            token_no_begin = strndup(token+5, len-5);
+            if (strstr(token_no_begin,"\n") == token_no_begin) {
+                int len = strlen(token_no_begin);   
+                token_clean = strndup(token_no_begin+1,len-1);
+            }   
+            if (strstr(token_clean,"end") != token_clean) {
+                rc = zbx_db_vexecute(token_clean, args);
+            }   
+
+            zbx_free(token_no_begin);
+            zbx_free(token_clean);
+        }   
+        while( token != NULL ) { 
+            //zabbix_log(LOG_LEVEL_WARNING,"TOKENTOKEN: %s", token);
+            if ((strstr(token,"begin") != token) && (strstr(token,"end") != token+1)) {
+                //zabbix_log(LOG_LEVEL_WARNING,"NO_BEGIN&NO_END");
+                int len = strlen(token);
+                char *token_clean=NULL;
+                if (strstr(token,"\n") == token) {
+                    token_clean = strndup(token+1, len-1);
+                    rc = zbx_db_vexecute(token_clean, args);
+					//zabbix_log(LOG_LEVEL_WARNING,"TOKEN_CLEAN: %s",token_clean);
+					zbx_free(token_clean);
+				}
+                else {
+					rc = zbx_db_vexecute(token, args);
+ 					//zabbix_log(LOG_LEVEL_WARNING,"TOKEN: %s",token);
+ 				}
+ 			}
+ 			token = strtok_r(NULL, ";",&ptr);
+ 		}
+	}
+
+
 
 	while (ZBX_DB_DOWN == rc)
 	{
