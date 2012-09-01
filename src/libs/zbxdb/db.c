@@ -461,9 +461,11 @@ static int	__zbx_zbx_db_execute(const char *fmt, ...)
 	char *sql=NULL;
 
 	va_start(args, fmt);
-	ret = zbx_db_vexecute(fmt, args);
+	sql = zbx_dvsprintf(sql,fmt,args);
+	ret = zbx_db_vexecute(sql, args);
 	va_end(args);
 
+	zbx_free(sql);
 	return ret;
 }
 #endif /* HAVE_MYSQL || HAVE_POSTGRESQL || HAVE_SQLITE3 */
@@ -662,8 +664,8 @@ int	zbx_db_vexecute(const char *fmt, va_list args)
 	if (CONFIG_LOG_SLOW_QUERIES)
 		sec = zbx_time();
 
-	sql = zbx_dvsprintf(sql, fmt, args);
-
+	sql = fmt;
+	//zabbix_log(LOG_LEVEL_DEBUG,"vexecute: %s",sql);
 
 	if (0 == txn_init && 0 == txn_level)
 		zabbix_log(LOG_LEVEL_DEBUG, "query without transaction detected");
@@ -863,7 +865,6 @@ lbl_exec:
 			zabbix_log(LOG_LEVEL_WARNING, "slow query: " ZBX_FS_DBL " sec, \"%s\"", sec, sql);
 	}
 
-	zbx_free(sql);
 
 	return ret;
 }
