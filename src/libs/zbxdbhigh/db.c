@@ -1938,7 +1938,6 @@ void	DBexecute_overflowed_sql(char **sql, int *sql_allocated, int *sql_offset)
 		zbx_snprintf_alloc(sql, sql_allocated, sql_offset, 6, "end;\n");
 #endif
 
-		zabbix_log(LOG_LEVEL_WARNING,"OverFlow SQL: %s",*sql);
 		DBexecute("%s", *sql);
 		*sql_offset = 0;
 #ifdef HAVE_ORACLE
