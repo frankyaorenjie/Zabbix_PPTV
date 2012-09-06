@@ -460,7 +460,6 @@ static void	DCflush_trends(ZBX_DC_TREND *trends, int *trends_num, int update_cac
 			}
 
 			trend->itemid = 0;
-			zabbix_log(LOG_LEVEL_WARNING,"dbcache: %s",sql);
 			DBexecute_overflowed_sql(&sql, &sql_allocated, &sql_offset);
 		}
 		DBfree_result(result);
@@ -470,7 +469,6 @@ static void	DCflush_trends(ZBX_DC_TREND *trends, int *trends_num, int update_cac
 #endif
 
 		if (sql_offset > 16)	/* In ORACLE always present begin..end; */
-			zabbix_log(LOG_LEVEL_WARNING,"dbcache: %s",sql);
 			DBexecute("%s", sql);
 	}
 
