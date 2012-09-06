@@ -544,7 +544,6 @@ static void	DCflush_trends(ZBX_DC_TREND *trends, int *trends_num, int update_cac
 					trend->value_max.dbl);
 #endif
 			trend->itemid = 0;
-			zabbix_log(LOG_LEVEL_WARNING,"dbcache: %s",sql);
 
 			DBexecute_overflowed_sql(&sql, &sql_allocated, &sql_offset);
 		}
@@ -593,7 +592,6 @@ static void	DCflush_trends(ZBX_DC_TREND *trends, int *trends_num, int update_cac
 					trend->value_max.ui64);
 #endif
 			trend->itemid = 0;
-			zabbix_log(LOG_LEVEL_WARNING,"dbcache: %s",sql);
 
 			DBexecute_overflowed_sql(&sql, &sql_allocated, &sql_offset);
 		}
@@ -608,7 +606,6 @@ static void	DCflush_trends(ZBX_DC_TREND *trends, int *trends_num, int update_cac
 #ifdef HAVE_ORACLE
 		zbx_snprintf_alloc(&sql, &sql_allocated, &sql_offset, 6, "end;\n");
 #endif
-		zabbix_log(LOG_LEVEL_WARNING,"dbcache(rest): %s",sql);
 		DBexecute("%s", sql);
 	}
 
